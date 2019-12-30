@@ -72,19 +72,21 @@ languageRouter
 languageRouter
   .post('/guess', jsonBodyParser, async (req, res, next) => {
     try {
-      const {guess, currentWord} = req.body;
+      const {guess} = req.body;
+      const language = await LanguageService.getUsersLanguage(req.app.get('db'), req.language.user_id);
       const words = await LanguageService.getLanguageWords(req.app.get('db'), req.language.id);
-      const word = words.find(element => element.original === currentWord);
+      const word = words.find(element => element.id === language.head);
 
       if (guess === word.translation) {
-        const language = await LanguageService.getUsersLanguage(req.app.get('db'), req.language.user_id);
         await LanguageService.correctAnswer(req.app.get('db'), word.id, word.correct_count);
         await LanguageService.incrementTotalScore(req.app.get('db'), req.language.user_id, language.total_score);
       } else {
         await LanguageService.incorrectAnswer(req.app.get('db'), word.id, word.incorrect_count);
       }
+      await LanguageService.updateLanguageHead(req.app.get('db'), req.language.user_id, word.next);
+
       const newWords = await LanguageService.getLanguageWords(req.app.get('db'), req.language.id);
-      const newWord = newWords.find(element => element.original === currentWord);
+      const newWord = newWords.find(element => element.id === language.head);
       const newLanguage = await LanguageService.getUsersLanguage(req.app.get('db'), req.language.user_id);
       const nextWord = words.find(element => element.id === newWord.next);
       const responseObject = {

@@ -29,6 +29,10 @@ const LanguageService = {
       .where({ language_id });
   },
 
+  updateLanguageHead(db, user_id, newHead){
+    return (db.from('language').where('language.user_id', user_id).update({head: newHead}))
+  },
+
   correctAnswer(db, id) {
     return (
       db.from('word').where({id}).increment('correct_count', 1)
