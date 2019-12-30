@@ -29,22 +29,20 @@ const LanguageService = {
       .where({ language_id });
   },
 
-  correctAnswer(db, word_id, score) {
-    let x = score+1;
-    console.log( db('word').where('id', word_id).select('correct_count'), x);
+  correctAnswer(db, id) {
     return (
-      db('word').where('id', word_id).update({'correct_count': x})
+      db.from('word').where({id}).increment('correct_count', 1)
     );
   },
 
-  incorrectAnswer(db, word_id, score) {
+  incorrectAnswer(db, id) {
     return (
-      db('word').where('id', word_id).update({'incorrect_count': score+1})
+      db.from('word').where({id}).increment('incorrect_count', 1)
     );
   },
 
-  incrementTotalScore(db, user_id, score){
-    return db('language').where('user_id', user_id).update({'total_score': score+1});
+  incrementTotalScore(db, user_id){
+    return db.from('language').where({user_id: user_id}).increment('total_score', 1);
   },
 
 };
