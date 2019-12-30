@@ -1,2 +1,7 @@
 node_modules
 .env
+.idea/workspace.xml
+.idea/vcs.xml
+.idea/spaced-repetition-api.iml
+.idea/modules.xml
+.idea/misc.xml

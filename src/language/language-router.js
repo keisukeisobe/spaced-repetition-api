@@ -71,15 +71,37 @@ languageRouter
 
 languageRouter
   .post('/guess', jsonBodyParser, async (req, res, next) => {
-    const {guess, currentWord}= req.body;
-    let word = LanguageService.getLanguageWords(req.app.get('db'), req.language.id).find(element => element.original === currentWord);
-    if (guess === currentWord){
-      LanguageService.correctAnswer(req.app.get('db'), word.id);
-      LanguageService.incrementTotalScore(req.app.get('db', req.language.id));
-    } else {
-      LanguageService.incorrectAnswer(req.app.get('db'), word.id);
-    }
+      try {
+          const {guess, currentWord} = req.body;
+          const words = await LanguageService.getLanguageWords(req.app.get('db'), req.language.id);
+          const word = words.find(element => element.original === currentWord);
 
+          if (guess === word.translation) {
+              const language = await LanguageService.getUsersLanguage(req.app.get('db'), req.language.user_id);
+              LanguageService.correctAnswer(req.app.get('db'), word.id, word.correct_count);
+            LanguageService.incrementTotalScore(req.app.get('db'), req.language.user_id, language.total_score);
+          } else {
+              LanguageService.incorrectAnswer(req.app.get('db'), word.id, word.incorrect_count);
+          }
+          const newWords = await LanguageService.getLanguageWords(req.app.get('db'), req.language.id);
+          const newWord = newWords.find(element => element.original === currentWord);
+          const newLanguage = await LanguageService.getUsersLanguage(req.app.get('db'), req.language.user_id);
+          const nextWord = words.find(element => element.id === newWord.next);
+
+
+          const responseObject = {
+              nextWord: nextWord.original,
+              wordCorrectCount: newWord.correct_count,
+              wordIncorrectCount: newWord.incorrect_count,
+              totalScore: newLanguage.total_score,
+              answer: word.translation,
+              isCorrect: guess === word.translation
+          };
+
+          res.json(responseObject);
+      } catch(error) {
+          next(error);
+      }
   });
 
 module.exports = languageRouter;
