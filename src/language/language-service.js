@@ -28,6 +28,26 @@ const LanguageService = {
       )
       .where({ language_id });
   },
+
+  correctAnswer(db, word_id) {
+    let correctCount = db('word').where('id', word_id).select('correct_count') + 1;
+    return (
+      db('word').where('id', word_id).update({'correct_count': correctCount})
+    );
+  },
+
+  incorrectAnswer(db, word_id) {
+    let incorrectCount = db('word').where('id', word_id).select('incorrect_count') + 1;
+    return (
+      db('word').where('id', word_id).update({'incorrect_count': incorrectCount})
+    );
+  },
+
+  incrementTotalScore(db, language_id){
+    let totalScore = db('language').where('id', language_id).select('total_score') + 1;
+    return db('language').where('id', language_id).update({'total_score': totalScore});
+  },
+
 };
 
 module.exports = LanguageService;
