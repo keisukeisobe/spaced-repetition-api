@@ -1,6 +1,7 @@
 const express = require('express');
 const LanguageService = require('./language-service');
 const { requireAuth } = require('../middleware/jwt-auth');
+const LinkedList = require('./LinkedList');
 
 const languageRouter = express.Router();
 const jsonBodyParser = express.json();
@@ -71,17 +72,35 @@ languageRouter
 
 languageRouter
   .post('/guess', jsonBodyParser, async (req, res, next) => {
+    const {guess} = req.body;
+    if (guess === undefined){
+      return res.status(400).json({error: 'Missing \'guess\' in request body'});
+    }
     try {
-      const {guess} = req.body;
       const language = await LanguageService.getUsersLanguage(req.app.get('db'), req.language.user_id);
       const words = await LanguageService.getLanguageWords(req.app.get('db'), req.language.id);
       const word = words.find(element => element.id === language.head);
-
+      //make a linked list here?
+      const list = new LinkedList();
+      let currWord = words.find(element => element.id === language.head);
+      while (currWord.next !== null){
+        list.insertLast(currWord);
+        // console.log(`${currWord.original}.next is ${words.find(element => element.id === currWord.next).original}`);
+        currWord = words.find(element => element.id === currWord.next);
+      }
+      list.insertLast(currWord);
+      list.display();
       if (guess === word.translation) {
         await LanguageService.correctAnswer(req.app.get('db'), word.id, word.correct_count);
         await LanguageService.incrementTotalScore(req.app.get('db'), req.language.user_id, language.total_score);
+        //change linked list based on mem values
+        list.remove(word);
+        word.memory_value = word.memory_value*2;
+        list.insertAt(word, word.memory_value);
+        list.display();
       } else {
         await LanguageService.incorrectAnswer(req.app.get('db'), word.id, word.incorrect_count);
+        //change linked list based on mem values
       }
       await LanguageService.updateLanguageHead(req.app.get('db'), req.language.user_id, word.next);
 
@@ -90,7 +109,7 @@ languageRouter
       const newLanguage = await LanguageService.getUsersLanguage(req.app.get('db'), req.language.user_id);
       const nextWord = words.find(element => element.id === newWord.next);
       const responseObject = {
-        nextWord: nextWord.id,
+        nextWord: nextWord.original,
         wordCorrectCount: newWord.correct_count,
         wordIncorrectCount: newWord.incorrect_count,
         totalScore: newLanguage.total_score,

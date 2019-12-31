@@ -30,7 +30,7 @@ const LanguageService = {
   },
 
   updateLanguageHead(db, user_id, newHead){
-    return (db.from('language').where('language.user_id', user_id).update({head: newHead}))
+    return (db.from('language').where('language.user_id', user_id).update({head: newHead}));
   },
 
   correctAnswer(db, id) {
