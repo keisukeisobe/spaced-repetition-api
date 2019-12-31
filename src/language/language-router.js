@@ -81,14 +81,14 @@ languageRouter
       const words = await LanguageService.getLanguageWords(req.app.get('db'), req.language.id);
       const word = words.find(element => element.id === language.head);
       const list = new LinkedList();
-        await LanguageService.updateLanguageHead(req.app.get('db'), req.language.user_id, words.find(element => element.id === language.head).next);
+      await LanguageService.updateLanguageHead(req.app.get('db'), req.language.user_id, words.find(element => element.id === language.head).next);
       let currWord = words.find(element => element.id === language.head);
       while (currWord.next !== null) {
         list.insertLast(currWord);
         currWord = words.find(element => element.id === currWord.next);
       }
       list.insertLast(currWord);
-;
+
       list.display();
       list.remove(word);
       if (guess === word.translation) {

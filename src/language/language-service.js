@@ -50,10 +50,10 @@ const LanguageService = {
   },
 
   updateMemValue(db, id, mem){
-    return (db.from('word').where({id}).update({memory_value: mem}))
+    return (db.from('word').where({id}).update({memory_value: mem}));
   },
   updateNextValue(db, id, nex){
-    return (db.from('word').where({id}).update({next: nex}))
+    return (db.from('word').where({id}).update({next: nex}));
   }
 };
 
