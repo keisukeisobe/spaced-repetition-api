@@ -49,6 +49,12 @@ const LanguageService = {
     return db.from('language').where({user_id: user_id}).increment('total_score', 1);
   },
 
+  updateMemValue(db, id, mem){
+    return (db.from('word').where({id}).update({memory_value: mem}))
+  },
+  updateNextValue(db, id, nex){
+    return (db.from('word').where({id}).update({next: nex}))
+  }
 };
 
 module.exports = LanguageService;
