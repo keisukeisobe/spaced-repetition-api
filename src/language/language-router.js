@@ -80,27 +80,27 @@ languageRouter
       const language = await LanguageService.getUsersLanguage(req.app.get('db'), req.language.user_id);
       const words = await LanguageService.getLanguageWords(req.app.get('db'), req.language.id);
       const word = words.find(element => element.id === language.head);
-      //make a linked list here?
       const list = new LinkedList();
+        await LanguageService.updateLanguageHead(req.app.get('db'), req.language.user_id, words.find(element => element.id === language.head).next);
       let currWord = words.find(element => element.id === language.head);
       while (currWord.next !== null) {
         list.insertLast(currWord);
         currWord = words.find(element => element.id === currWord.next);
       }
       list.insertLast(currWord);
+;
       list.display();
       list.remove(word);
       if (guess === word.translation) {
         await LanguageService.correctAnswer(req.app.get('db'), word.id, word.correct_count);
         await LanguageService.incrementTotalScore(req.app.get('db'), req.language.user_id, language.total_score);
         await LanguageService.updateMemValue(req.app.get('db'), word.id, word.memory_value * 2);
-        list.insertAt(word, word.memory_value);
+        list.insertAt(word, word.memory_value * 2);
       } else {
         await LanguageService.incorrectAnswer(req.app.get('db'), word.id, word.incorrect_count);
         await LanguageService.updateMemValue(req.app.get('db'), word.id, 1);
         list.insertAt(word, 1);
       }
-      await LanguageService.updateLanguageHead(req.app.get('db'), req.language.user_id, word.next);
       currWord = list.head;
       list.display();
       while (currWord.next !== null) {
@@ -111,11 +111,10 @@ languageRouter
       const newWords = await LanguageService.getLanguageWords(req.app.get('db'), req.language.id);
       const newWord = newWords.find(element => element.id === language.head);
       const newLanguage = await LanguageService.getUsersLanguage(req.app.get('db'), req.language.user_id);
-      const nextWord = words.find(element => element.id === newWord.next);
 
       await LanguageService.updateNextValue(req.app.get('db'), currWord.value.id, null);
       const responseObject = {
-        nextWord: nextWord.original,
+        nextWord: newWords.find(nw => nw.id === newLanguage.head).original,
         wordCorrectCount: newWord.correct_count,
         wordIncorrectCount: newWord.incorrect_count,
         totalScore: newLanguage.total_score,
