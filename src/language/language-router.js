@@ -94,13 +94,13 @@ languageRouter
         await LanguageService.correctAnswer(req.app.get('db'), word.id, word.correct_count);
         await LanguageService.incrementTotalScore(req.app.get('db'), req.language.user_id, language.total_score);
         await LanguageService.updateMemValue(req.app.get('db'), word.id, word.memory_value * 2);
-
+        list.insertAt(word, word.memory_value);
       } else {
         await LanguageService.incorrectAnswer(req.app.get('db'), word.id, word.incorrect_count);
         await LanguageService.updateMemValue(req.app.get('db'), word.id, 1);
+        list.insertAt(word, 1);
       }
       await LanguageService.updateLanguageHead(req.app.get('db'), req.language.user_id, word.next);
-      list.insertAt(word, word.memory_value);
       currWord = list.head;
       list.display();
       while (currWord.next !== null) {
