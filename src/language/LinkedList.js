@@ -44,6 +44,8 @@ class LinkedList {
 
     insertAt(value, index) {
         if (index > this.size()) {
+            value.next = null;
+            console.log(index > this.size())
             this.insertLast(value);
         } else {
             let currIndex = 0;

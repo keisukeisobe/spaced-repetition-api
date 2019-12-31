@@ -113,6 +113,8 @@ languageRouter
             const newWord = newWords.find(element => element.id === language.head);
             const newLanguage = await LanguageService.getUsersLanguage(req.app.get('db'), req.language.user_id);
             const nextWord = words.find(element => element.id === newWord.next);
+
+            await LanguageService.updateNextValue(req.app.get('db'), currWord.value.id, null);
             const responseObject = {
                 nextWord: nextWord.original,
                 wordCorrectCount: newWord.correct_count,
